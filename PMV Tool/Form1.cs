@@ -7,12 +7,14 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
+using OfficeOpenXml;
+using Color = System.Drawing.Color;
+using Control = System.Windows.Forms.Control;
 
 namespace PMV_Tool
 {
     public partial class Form1 : Form
     {
-        ExcelOne excelClass = new ExcelOne();
         double totalPMV = 0;
         double siteLabour;
         double siteSupervision;
@@ -649,35 +651,36 @@ namespace PMV_Tool
             concated = cat1radiobuttonVariable + cat2radiobuttonVariable + cat3radiobuttonVariable
                 + cat5ListBoxVariable + cat6ListBoxVariable + cat7ListBoxVariable;
             Console.WriteLine(concated);
-
-
+            
 
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             path = Path.Combine(path, "MMC.xlsx");
 
             //---------Select the Excel File---------//
-            ConnexionExcel ConxObject = new ConnexionExcel(path);
-            var query2 = from a in ConxObject.UrlConnexion.Worksheet<ExcelCategories>("PMV Scenarios Cat 1")
-                         select a;
-
-            foreach (var result in query2)
+            using (var package = new ExcelPackage(new FileInfo(path)))
             {
+                var keyCell = package.Workbook.Worksheets
+                    .First()
+                    .Cells["A:A"]
+                    .FirstOrDefault(c => c.GetValue<string>() == concated);
 
-                //Console.WriteLine(result.UniqueID);
-
-                if ((result.UniqueID).ToString() == concated )
-                {   
-                    //labourVar = result.Labour;
-                    //materialsVar = result.Materials;
-                    //siteSupervisionVar = result.siteSupervision;
-                    //plantVar = result.PlantAndTemporaryWorks;
-
-                    string product = "{0:0.000}, {1:0.000}, {2:0.000}, {3:0.000}";
-                    MessageBox.Show(string.Format(product, result.Labour, result.siteSupervision,
-                      result.Materials, result.PlantAndTemporaryWorks));
-
+                if (keyCell == null)
+                {
+                    MessageBox.Show(string.Format("Could not find values for '{0}'", concated));
+                    return;
                 }
-                
+
+                var result = new ScenarioValues
+                {
+                    Labour = keyCell.Offset(0, 2).GetValue<decimal>(),
+                    SiteSupervision = keyCell.Offset(0, 3).GetValue<decimal>(),
+                    Materials = keyCell.Offset(0, 4).GetValue<decimal>(),
+                    PlantAndTemporaryWorks = keyCell.Offset(0, 5).GetValue<decimal>(),
+                };
+
+                string product = "{0:0.000}, {1:0.000}, {2:0.000}, {3:0.000}";
+                MessageBox.Show(string.Format(product, result.Labour, result.SiteSupervision,
+                  result.Materials, result.PlantAndTemporaryWorks));
             }
 
         }
