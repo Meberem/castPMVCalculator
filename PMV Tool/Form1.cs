@@ -649,8 +649,7 @@ namespace PMV_Tool
             using (var package = new ExcelPackage(new FileInfo(path)))
             {
                 var keyCell = package.Workbook.Worksheets
-                    .First()
-                    .Cells["A:A"]
+                    .SelectMany(c => c.Cells["A:A"])
                     .FirstOrDefault(c => c.GetValue<string>() == concated);
 
                 if (keyCell == null)
