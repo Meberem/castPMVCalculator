@@ -223,30 +223,24 @@ namespace PMV_Tool
             chart1.ChartAreas[0].AxisY.MinorTickMark.Enabled = false;
             chart1.ChartAreas[0].AxisY.LineColor = chart1.BackColor;
 
-            // SITE LABOUR 
-            siteLabour = 30 ; 
+            excelActions();
 
+            // SITE LABOUR 
             chart1.Series["Site Labour"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Column;
             chart1.Series["Site Labour"]["PixelPointWidth"] = "130";
             chart1.Series["Site Labour"].Points.AddXY(0.5, siteLabour);
 
             //SITE SUPERVISION
-            siteSupervision = 25;
-
             chart1.Series["Site Supervision"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Column;
             chart1.Series["Site Supervision"]["PixelPointWidth"] = "130";
             chart1.Series["Site Supervision"].Points.AddXY(1.5, siteSupervision) ;
 
             //MATERIALS
-            materials = 40;
-
             chart1.Series["Materials"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Column;
             chart1.Series["Materials"]["PixelPointWidth"] = "130";
             chart1.Series["Materials"].Points.AddXY(3.5, materials);
 
             //PLANT & TEMPORARY WORKS
-            plant = 5 ;
-
             chart1.Series["Plant"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Column;
             chart1.Series["Plant"]["PixelPointWidth"] = "130";
             chart1.Series["Plant"].Points.AddXY(4, plant);
@@ -257,8 +251,6 @@ namespace PMV_Tool
             chart1.Series["Site Supervision"].Label = "Site Supervision " + siteSupervision.ToString() + "%";
             chart1.Series["Materials"].Label = "Materials " + materials.ToString() + "%";
             chart1.Series["Plant"].Label = "Plant & Temporary" + Environment.NewLine + "Works " + plant.ToString() + "%";
-
-            excelActions();
         }
         
         //-----------------------------------UNCHECK COMMAND -----------------------------------------//
@@ -635,10 +627,6 @@ namespace PMV_Tool
         private void excelActions()
         {
             string concated;
-            var labourVar = 0;
-            var materialsVar = 0;
-            var siteSupervisionVar = 0;
-            var plantVar = 0;
 
             cat1radiobuttonVariable = getRadioButtonCat1();
             cat2radiobuttonVariable = getRadioButtonCat2();
@@ -651,7 +639,8 @@ namespace PMV_Tool
             concated = cat1radiobuttonVariable + cat2radiobuttonVariable + cat3radiobuttonVariable
                 + cat5ListBoxVariable + cat6ListBoxVariable + cat7ListBoxVariable;
             Console.WriteLine(concated);
-            
+
+
 
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             path = Path.Combine(path, "MMC.xlsx");
@@ -670,17 +659,13 @@ namespace PMV_Tool
                     return;
                 }
 
-                var result = new ScenarioValues
-                {
-                    Labour = keyCell.Offset(0, 2).GetValue<decimal>(),
-                    SiteSupervision = keyCell.Offset(0, 3).GetValue<decimal>(),
-                    Materials = keyCell.Offset(0, 4).GetValue<decimal>(),
-                    PlantAndTemporaryWorks = keyCell.Offset(0, 5).GetValue<decimal>(),
-                };
+                siteLabour = keyCell.Offset(0, 2).GetValue<double>() * 100;
+                siteSupervision = keyCell.Offset(0, 3).GetValue<double>() * 100;
+                materials = keyCell.Offset(0, 4).GetValue<double>() * 100;
+                plant = keyCell.Offset(0, 5).GetValue<double>() * 100;
 
                 string product = "{0:0.000}, {1:0.000}, {2:0.000}, {3:0.000}";
-                MessageBox.Show(string.Format(product, result.Labour, result.SiteSupervision,
-                  result.Materials, result.PlantAndTemporaryWorks));
+                Console.WriteLine(product, siteLabour, siteSupervision, materials, plant);
             }
 
         }
